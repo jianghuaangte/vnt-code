@@ -1,0 +1,30 @@
+name: rotate-code
+
+on:
+  workflow_dispatch:
+  repository_dispatch:
+    types: [rotate]
+
+permissions:
+  contents: write
+
+jobs:
+  rotate:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: 生成 时间戳+4字母
+        run: |
+          TS=$(date +%s%3N)
+          RAND=$(tr -dc A-Za-z </dev/urandom | head -c 4)
+          CODE="${TS}${RAND}"
+          echo $CODE > code.txt
+
+      - name: commit
+        run: |
+          git config user.name github-actions
+          git config user.email github-actions@github.com
+          git add code.txt
+          git commit -m "rotate code"
+          git push
